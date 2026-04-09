@@ -1,198 +1,160 @@
-# Extreme Heat Prediction Using Impact-Centric Variables
-### Bachelor of Science in Computer Science — Thesis Project
+# 🌡️ ImpactGuard: Extreme Heat Early Warning System
+
+**ImpactGuard** is a Streamlit-based decision-support system designed to enhance extreme heat prediction using **impact-centric variables** such as Wet-bulb Temperature, Urban Heat Island (UHI) Intensity, and PM2.5 levels.
+
+Developed as an undergraduate thesis project for **BS Computer Science**, this system demonstrates how integrating environmental and physiological factors can improve heat risk forecasting beyond traditional weather-based models.
 
 ---
 
-## Overview
+## 📌 Overview
 
-This repository contains the complete Python implementation for the thesis:
+Extreme heat events pose increasing risks to public health, especially in urban environments. Traditional forecasting methods rely primarily on temperature and humidity, which may not fully capture human heat stress.
 
-> **"Enhancing Extreme Heat Prediction Using Impact-Centric Variables
-> in Machine Learning Models"**
-
-The system trains and compares two LSTM models:
-- **Baseline LSTM** — conventional meteorological inputs only
-  (temperature, humidity, wind speed)
-- **Impact-Centric LSTM** — adds UHI intensity, wet-bulb temperature,
-  PM 2.5, and heat index
-
-It includes SHAP-based feature explainability and an alert dispatch module.
+**ImpactGuard addresses this gap by:**
+- Incorporating **impact-centric variables**
+- Providing **interpretable predictions** using explainable AI
+- Delivering **actionable alerts** for local decision-makers
 
 ---
 
-## Architecture (9-Module Design)
+## 🚀 Key Features
 
-```
-WeatherRecord ──► DataPipeline ──► LSTMModel ──► EvaluationModule
-ImpactRecord  ──►                              ──► XAIModule
-HeatEvent     ──► EvaluationModule ──────────► AlertModule
-                  DataFetchModule (live feeds)
-```
-
-| Module | File | Purpose |
-|---|---|---|
-| WeatherRecord | `entities.py` | Meteorological observation |
-| ImpactRecord | `entities.py` | UHI, wet-bulb, PM2.5, heat index |
-| HeatEvent | `entities.py` | Classified heat event + alerts |
-| DataPipeline | `data_pipeline.py` | Load → merge → sequence → split → scale |
-| LSTMModel | `lstm_model.py` | Baseline & impact-centric LSTM |
-| EvaluationModule | `evaluation_module.py` | RMSE, MAE, F1, AUC, comparison |
-| XAIModule | `xai_module.py` | SHAP importance + reports |
-| AlertModule | `alert_data_modules.py` | Threshold alerts + logging |
-| DataFetchModule | `alert_data_modules.py` | Live API data retrieval |
+### 🔮 Heat Risk Prediction
+- Forecasts extreme heat risk for up to **7 days**
+- Uses a simulated **LSTM-based model pipeline**
+- Outputs probability-based risk levels:
+  - 🟢 Low
+  - 🟡 Moderate
+  - 🟠 High
+  - 🔴 Extreme
 
 ---
 
-## Project File Structure
-
-```
-heat_prediction/
-├── entities.py              # WeatherRecord, ImpactRecord, HeatEvent
-├── data_generator.py        # Synthetic Davao City dataset
-├── data_pipeline.py         # DataPipeline class
-├── lstm_model.py            # LSTMModel (baseline + impact-centric)
-├── evaluation_module.py     # EvaluationModule
-├── xai_module.py            # XAIModule (SHAP)
-├── alert_data_modules.py    # AlertModule + DataFetchModule
-├── main.py                  # Full experiment runner
-├── requirements.txt
-└── README.md
-```
-
-Output files (generated on run):
-```
-outputs/
-├── baseline_final.weights.h5
-├── impact_final.weights.h5
-├── model_comparison.csv
-├── shap_importance.png
-├── xai_report.txt
-└── alert_log.json
-data/
-├── weather_records.csv
-└── impact_records.csv
-```
+### ⚖️ Model Comparison
+- Compares:
+  - **Baseline Model** (Temperature, Humidity, Wind Speed)
+  - **Impact-Centric Model** (+ UHI, Wet-bulb, PM2.5)
+- Displays performance metrics:
+  - RMSE, MAE, Accuracy, F1 Score, AUC-ROC
 
 ---
 
-## Setup & Installation
-
-### 1. Prerequisites
-- Python 3.10 or higher
-- pip package manager
-
-### 2. Create a virtual environment (recommended)
-
-```bash
-python -m venv venv
-# Windows:
-venv\Scripts\activate
-# macOS / Linux:
-source venv/bin/activate
-```
-
-### 3. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-> **GPU acceleration (optional):** Replace `tensorflow` with
-> `tensorflow[and-cuda]` for NVIDIA GPU support.
+### 🔍 Explainable AI (XAI)
+- Uses **SHAP (SHapley Additive Explanations)**
+- Identifies top contributing features
+- Provides:
+  - Feature importance visualization
+  - Natural language explanations
 
 ---
 
-## Running the Experiment
-
-### Full experiment (recommended)
-
-```bash
-python main.py
-```
-
-### Custom options
-
-```bash
-# 2 years of data, 50 epochs, 48-hour lookback
-python main.py --days 730 --epochs 50 --seq 48
-
-# Quick debug run (no SHAP, fewer epochs)
-python main.py --days 90 --epochs 5 --no-shap
-
-# Custom output directories
-python main.py --outdir results/ --datadir datasets/
-```
-
-### Available flags
-
-| Flag | Default | Description |
-|---|---|---|
-| `--days` | 365 | Synthetic simulation days |
-| `--epochs` | 30 | Max LSTM training epochs |
-| `--seq` | 24 | Lookback window (hours) |
-| `--batch` | 64 | Mini-batch size |
-| `--no-shap` | False | Skip SHAP (faster debugging) |
-| `--outdir` | `outputs/` | Output directory |
-| `--datadir` | `data/` | Data directory |
+### 🚨 Alert System
+- Generates risk-based alerts with:
+  - Severity classification
+  - Recommended actions
+- Supports public health decision-making
 
 ---
 
-## Expected Runtime (CPU)
-
-| Configuration | Approx. Time |
-|---|---|
-| 1 year, 30 epochs, no SHAP | 5–10 min |
-| 1 year, 30 epochs, with SHAP | 10–20 min |
-| 2 years, 50 epochs, with SHAP | 20–40 min |
-
----
-
-## Real Data Sources
-
-To replace the synthetic generator with real observational data,
-obtain data from the following sources and format them as CSV files
-matching `weather_records.csv` and `impact_records.csv` schemas.
-
-| Variable | Source | URL |
-|---|---|---|
-| Temperature, Humidity, Wind | PAGASA | pagasa.dost.gov.ph |
-| Temperature, Humidity, Wind | ERA5 (ECMWF) | cds.climate.copernicus.eu |
-| Urban Heat Island (LST) | MODIS via GEE | earthengine.google.com |
-| Urban Heat Island (LST) | USGS EarthExplorer | earthexplorer.usgs.gov |
-| PM 2.5 Air Quality | OpenAQ | openaq.org |
-| PM 2.5 Air Quality | AirVisual | iqair.com/air-pollution-data-api |
-| Solar Radiation | NASA POWER | power.larc.nasa.gov |
+### 📊 Interactive Dashboard
+- Built using **Streamlit + Plotly**
+- Includes:
+  - Forecast tables
+  - Trend graphs
+  - Risk probability charts
+  - Location mapping
 
 ---
 
-## Methodology Notes
+## 🧠 System Architecture
 
-### Time-Series Cross-Validation
-Data is split **chronologically** (70% train / 15% val / 15% test) to
-prevent look-ahead bias. No random shuffling is applied.
-
-### Class Imbalance Handling
-Extreme heat events are rare (~5–15% of observations). The system
-applies **inverse-frequency class weights** during training.
-To use SMOTE instead, uncomment `imbalanced-learn` in requirements.txt.
-
-### SHAP Explainability
-A `KernelExplainer` is used (model-agnostic, compatible with LSTM/RNN).
-It operates on flattened sequences; SHAP values are then averaged
-across time steps to produce per-feature importance scores.
+User Input (Location, Days, Model)  
+        ↓  
+Streamlit Frontend (UI)  
+        ↓  
+Data Fetch Module (Weather + Impact Variables)  
+        ↓  
+Prediction Module (LSTM Model)  
+        ↓  
+Explainability Module (SHAP)  
+        ↓  
+Visualization & Alerts  
 
 ---
 
+## ⚙️ Technologies Used
 
-```
-John Wallace Aceres | Danna Mishna Lledo
-Enhancing Extreme Heat Prediction Using
-Impact-Centric Variables in Machine Learning Models.
-Bachelor of Science in Computer Science Thesis,
-Ateneo de Zamboanga University, Zamboanga City,  Zamboanga Del Sur, Philippines.
-```
+- Python 3.11
+- Streamlit
+- Pandas / NumPy
+- Plotly
+- SHAP
 
 ---
 
-## License
-This project is developed for academic purposes.
+## 📂 Project Structure
+
+ForThesis/  
+│  
+├── app.py                # Main Streamlit application  
+├── requirements.txt     # Dependencies  
+└── README.md            # Project documentation  
+
+> Note: Backend modules (DataPipeline, LSTMModel, etc.) are structured as placeholders for integration with a full machine learning pipeline.
+
+---
+
+## ▶️ How to Run
+
+1. Clone the repository  
+   git clone https://github.com/alph4s3/ForThesis.git  
+   cd ForThesis  
+
+2. Create a virtual environment  
+   python -m venv venv  
+   source venv/bin/activate   (Mac/Linux)  
+   venv\Scripts\activate      (Windows)  
+
+3. Install dependencies  
+   pip install -r requirements.txt  
+
+4. Run the app  
+   streamlit run app.py  
+
+---
+
+## ⚠️ Limitations
+
+- Current implementation uses **simulated data and model outputs** for demonstration purposes.
+- The system is designed with a **modular backend architecture**, allowing integration of real datasets and trained LSTM models in future work.
+- External data sources such as ERA5 and OpenAQ are planned for full deployment.
+
+---
+
+## 🔮 Future Improvements
+
+- Integration of real-time APIs (ERA5, OpenAQ)
+- Deployment of trained LSTM models
+- Expansion to more cities and regions
+- Mobile-responsive version
+- Automated alert notifications (SMS / Email)
+
+---
+
+## 👨‍💻 Author
+
+John Wallace Aceres  
+BS Computer Science  
+Ateneo de Zamboanga University  
+
+---
+
+## 📜 Thesis Title
+
+"Enhancing Extreme Heat Prediction Using Impact-Centric Variables in Machine Learning Models"
+
+---
+
+## 💡 Final Note
+
+ImpactGuard is not just a predictive tool — it is a **decision-support system** designed to bridge the gap between data science and public health action in the face of climate change.
